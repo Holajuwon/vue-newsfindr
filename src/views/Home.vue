@@ -1,18 +1,41 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <h2>Top Headlines</h2>
+    <DisplayContainer :news="getNews" />
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
+import { mapGetters, mapActions } from "vuex";
+import DisplayContainer from "@/components/DisplayContainer.vue";
 
 export default {
   name: "Home",
-  components: {
-    HelloWorld,
+  components: { DisplayContainer },
+  computed: {
+    ...mapGetters(["getNews"]),
+  },
+  methods: {
+    ...mapActions(["fetchNews", "fetchByCategory"]),
+  },
+  mounted() {
+    this.fetchNews({});
+  },
+  watch: {
+    "$route.query.q"() {
+      let query = this.$route.query;
+      this.fetchByCategory(query);
+    },
+    "$route.query.page"() {
+      let query = this.$route.query;
+      query.q || query.source
+        ? this.fetchByCategory(query)
+        : this.fetchNews(query);
+    },
+    "$route.query.source"() {
+      let query = this.$route.query;
+      this.fetchByCategory(query);
+    },
   },
 };
 </script>
